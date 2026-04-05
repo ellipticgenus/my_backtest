@@ -1,5 +1,5 @@
-from backtester.src.core.price_module.tradables import  NearbyFuture
-from backtester.src.core.price_module.utils import reshape_instruments_on_dates
+from backtester_full.src.core.price_module.tradables import  NearbyFuture
+from backtester_full.src.core.price_module.utils import reshape_instruments_on_dates
 
 class NearbyPrice():
     def __init__(self,params = {}):

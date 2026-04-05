@@ -1,11 +1,11 @@
 import pandas as pd
 import numpy as np
 from datetime import date
-from my_holidays.holiday_utils import *
+from my_holiday.holiday_utils import *
 from commodity.commodconfig import COMMODINFO
 from commodity.commodity import commodity_helper
-from backtester.src.core.portfolio import Trade
-from backtester.src.core.units_module.base_module import BaseUnitModule
+from backtester_full.src.core.portfolio import Trade
+from backtester_full.src.core.units_module.base_module import BaseUnitModule
 import re
 
 

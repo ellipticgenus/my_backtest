@@ -1,7 +1,7 @@
 # module used to calculate transaction costs for futures trading
-from backtester.src.core.portfolio import Trade
+from backtester_full.src.core.portfolio import Trade
 from commodity.commodconfig import COMMODINFO
-from backtester.src.core.utils.global_params_helper import GLOBALPARAMS
+from backtester_full.src.core.utils.global_params_helper import GLOBALPARAMS
 
 
 class TC:

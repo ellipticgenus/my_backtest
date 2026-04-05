@@ -1,8 +1,8 @@
 from .base_module import BaseUnitModule
 import pandas as pd
-from my_holidays.holiday_utils import *
-from backtester.src.core.portfolio import Trade
-from backtester.src.core.utils.utils import partition_ticker
+from my_holiday.holiday_utils import *
+from backtester_full.src.core.portfolio import Trade
+from backtester_full.src.core.utils.utils import partition_ticker
 import numpy as np
 
 

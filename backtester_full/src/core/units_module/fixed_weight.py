@@ -1,7 +1,7 @@
 import pandas as pd
-from my_holidays.holiday_utils import *
+from my_holiday.holiday_utils import *
 from commodity.commodconfig import COMMODINFO
-from backtester.src.core.portfolio import Trade
+from backtester_full.src.core.portfolio import Trade
 import re
 
 class FixedWeight:

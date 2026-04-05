@@ -1,5 +1,5 @@
-from backtester.src.core.price_module.tradables import Future
-from backtester.src.core.price_module.utils import reshape_instruments_on_dates
+from backtester_full.src.core.price_module.tradables import Future
+from backtester_full.src.core.price_module.utils import reshape_instruments_on_dates
 
 class FuturePrice():
     def __init__(self,params = {}):

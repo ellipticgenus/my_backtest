@@ -1,10 +1,13 @@
 import pandas as pd
 import numpy as np
 from commodity.commodconfig import COMMODINFO
-from my_holidays.holiday_utils import *
+from my_holiday.holiday_utils import *
 import pickle
 from dateutil.relativedelta import relativedelta
-from backtester.src.core.utils.global_params_helper import GLOBALPARAMS
+from backtester_full.src.core.utils.global_params_helper import GLOBALPARAMS
+from backtester_full.src.core.data_loader.price_loader import PriceLoader
+from backtester_full.src.core.data_loader.series_loader import SeriesLoader
+from backtester_full.src.core.data_loader.cot_loader import COTLoader
 
 import os
 CODE_MAP = {
@@ -42,16 +45,29 @@ class Future:
         ticker: bloomberg ticker: string
         data: time series data related to the contract: series 
     """
-    def __init__(self, ticker):
+    # Class-level data loader (initialized on first use)
+    _price_loader = None
+    
+    def __init__(self, ticker, use_dataloader=False):
         """        ticker: str, the Bloomberg ticker for the future
         month: int, the month of the contract (1-12)
         year: int, the year of the contract
         month_code: str, optional, the month code for the contract (e.g., 'F' for January, 'G' for February, etc.)
+        use_dataloader: bool, whether to use the new DataLoader (default: False for backward compatibility)
         """
         self.ticker = ticker
         self.symbol, self.month, self.year = partition_ticker(ticker)
         self.info = COMMODINFO.get(self.symbol, {})
+        self.use_dataloader = use_dataloader
         self.data = self.load_data()
+
+    @classmethod
+    def _get_price_loader(cls):
+        """Get or create the class-level price loader."""
+        if cls._price_loader is None:
+            base_path = GLOBALPARAMS.get('path', '.')
+            cls._price_loader = PriceLoader({'base_path': base_path})
+        return cls._price_loader
 
     @property
     def closes(self):
@@ -76,6 +92,23 @@ class Future:
             currently read data from folder, maybe later try option with database and bbg. 
         :return: pd.DataFrame, DataFrame 
         """
+        if self.use_dataloader:
+            # Use new DataLoader
+            try:
+                loader = self._get_price_loader()
+                exchange = self.info.get('holiday', None)
+                df = loader.load_future_price(
+                    symbol=self.symbol,
+                    contract=self.month + self.ticker[-2:],
+                    exchange=exchange
+                )
+                df = df.loc[:self.last_trading_day]
+                return df
+            except FileNotFoundError:
+                # Fallback to old method if DataLoader fails
+                pass
+        
+        # Original method (backward compatible)
         if data_source == 'folder':
             # print('loaded data from folder')
             df = pd.read_csv(f"{GLOBALPARAMS['path']}/data/{self.symbol}/{self.month + self.ticker[-2:]}.csv")
@@ -141,12 +174,16 @@ class NearbyFuture:
     class used to define futures contracts:
         ticker: bloomberg ticker: string
     """
-    def __init__(self, symbol, params):
+    # Class-level data loaders (initialized on first use)
+    _series_loader = None
+    
+    def __init__(self, symbol, params, use_dataloader=False):
         """
         Initialize a NearbyFuture object with the given parameters.
         :param asset: str, the ticker symbol of the asset
         :param k_nearby: int, the number of nearby contracts to consider (default is 1)
         :param roll_schedule: str, the schedule for rolling the contracts (default is an empty string)
+        :param use_dataloader: bool, whether to use the new DataLoader (default: False for backward compatibility)
         """
         self.symbol = symbol
         for k, v in params.items():
@@ -155,9 +192,16 @@ class NearbyFuture:
         self.roll_schedule = params['roll_schedule']
         self.logreturn = params.get('logreturn', False)
         self.skew_table = params.get('skew_table', [])
+        self.use_dataloader = use_dataloader
         self.data = self.load_data()
 
- 
+    @classmethod
+    def _get_series_loader(cls):
+        """Get or create the class-level series loader."""
+        if cls._series_loader is None:
+            base_path = GLOBALPARAMS.get('path', '.')
+            cls._series_loader = SeriesLoader({'base_path': base_path})
+        return cls._series_loader
     
     def load_data(self):
         """ 
@@ -169,9 +213,36 @@ class NearbyFuture:
             temp = self.symbol[:-1]
         else: 
             temp = self.symbol
-        df = pd.read_csv(f"{GLOBALPARAMS['path']}/data/series/{temp}/{self.symbol}_{self.k_nearby}_{self.roll_schedule}.csv")
-        df['date'] = pd.to_datetime(df['date'])
-        df = df.reset_index(drop=True).set_index('date')
+        
+        if self.use_dataloader:
+            # Use new DataLoader
+            try:
+                loader = self._get_series_loader()
+                # Determine contract type from symbol
+                if self.symbol[-1] == 'Q':
+                    contract_type = 'quarterly'
+                elif self.symbol[-1] == 'Y':
+                    contract_type = 'yearly'
+                else:
+                    contract_type = 'monthly'
+                
+                df = loader.load_nearby_series(
+                    symbol=temp,
+                    k_nearby=self.k_nearby,
+                    roll_schedule=self.roll_schedule,
+                    contract_type=contract_type
+                )
+            except FileNotFoundError:
+                # Fallback to old method
+                df = pd.read_csv(f"{GLOBALPARAMS['path']}/data/series/{temp}/{self.symbol}_{self.k_nearby}_{self.roll_schedule}.csv")
+                df['date'] = pd.to_datetime(df['date'])
+                df = df.reset_index(drop=True).set_index('date')
+        else:
+            # Original method (backward compatible)
+            df = pd.read_csv(f"{GLOBALPARAMS['path']}/data/series/{temp}/{self.symbol}_{self.k_nearby}_{self.roll_schedule}.csv")
+            df['date'] = pd.to_datetime(df['date'])
+            df = df.reset_index(drop=True).set_index('date')
+        
         if self.skew_table:
             for row in self.skew_table:
                 if self.logreturn:

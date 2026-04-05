@@ -1,4 +1,4 @@
-from backtester.src.core.utils.utils import partition_ticker
+from backtester_full.src.core.utils.utils import partition_ticker
 from commodity.commodity import commodity_helper
 from commodity.commodconfig import COMMODINFO
 import pandas as pd

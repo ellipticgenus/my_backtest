@@ -1,13 +1,13 @@
-from backtester.src.core.units_module.base_module import BaseUnitModule
+from backtester_full.src.core.units_module.base_module import BaseUnitModule
 import pandas as pd
-from my_holidays.holiday_utils import *
-from backtester.src.core.portfolio import Trade
-from backtester.src.core.utils.utils import partition_ticker
+from my_holiday.holiday_utils import *
+from backtester_full.src.core.portfolio import Trade
+from backtester_full.src.core.utils.utils import partition_ticker
 import numpy as np
 from abc import  abstractmethod
-from backtester.src.core.units_module.utils.kalman import KalmanTrendEstimator
-from backtester.src.core.units_module.utils.signal_utils import *
-from backtester.src.core.utils.global_params_helper import GLOBALPARAMS
+from backtester_full.src.core.units_module.utils.kalman import KalmanTrendEstimator
+from backtester_full.src.core.units_module.utils.signal_utils import *
+from backtester_full.src.core.utils.global_params_helper import GLOBALPARAMS
 import copy
 
 CONTRACT_TYPE = {'Q':'quarterly', 'Y': 'yearly', '':'monthly'}

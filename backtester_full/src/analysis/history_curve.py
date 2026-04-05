@@ -7,7 +7,7 @@ from matplotlib import dates as mdates
 from matplotlib.colors import LinearSegmentedColormap
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
-from my_holidays.holiday_utils import *
+from my_holiday.holiday_utils import *
 from typing import Dict, List
 PREROLL = {
     'Q':[0,1],

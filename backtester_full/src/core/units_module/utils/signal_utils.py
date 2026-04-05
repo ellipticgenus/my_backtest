@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from backtester.src.core.units_module.utils.kalman import KalmanTrendEstimator
+from backtester_full.src.core.units_module.utils.kalman import KalmanTrendEstimator
 def bollinger_bands(series, window=5, num_std=2):
     """
     Calculate Bollinger Bands for a given time series.

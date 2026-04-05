@@ -1,21 +1,21 @@
-from backtester.src.core.portfolio import Portfolio
-from backtester.src.core.units_module.rolling import SimpleRolling, PreRoll
-from backtester.src.core.units_module.dynamic_rolling import DynamicRolling
-from backtester.src.core.units_module.var_adjustment import  VarAdjustment
-from backtester.src.core.units_module.vol_target import VolTarget
-from backtester.src.core.units_module.vol_target_strategy import *
-from backtester.src.core.units_module.skew import Skew
-from backtester.src.core.units_module.trend import Trend
-from backtester.src.core.units_module.ts_signal import *
+from backtester_full.src.core.portfolio import Portfolio
+from backtester_full.src.core.units_module.rolling import SimpleRolling, PreRoll
+from backtester_full.src.core.units_module.dynamic_rolling import DynamicRolling
+from backtester_full.src.core.units_module.var_adjustment import  VarAdjustment
+from backtester_full.src.core.units_module.vol_target import VolTarget
+from backtester_full.src.core.units_module.vol_target_strategy import *
+from backtester_full.src.core.units_module.skew import Skew
+from backtester_full.src.core.units_module.trend import Trend
+from backtester_full.src.core.units_module.ts_signal import *
 
-from my_holidays.holiday_utils import *
+from my_holiday.holiday_utils import *
 from datetime import datetime, timedelta,date
-from backtester.src.core.price_module.future_price import FuturePrice
-from backtester.src.core.price_module.nearby_price import NearbyPrice
-from backtester.src.core.price_module.strategy_price import StrategyPrice
-from backtester.src.core.cost_module.tc import TC
-from backtester.src.core.utils.utils import get_unique_dicts
-from backtester.src.core.utils.global_params_helper import GLOBALPARAMS
+from backtester_full.src.core.price_module.future_price import FuturePrice
+from backtester_full.src.core.price_module.nearby_price import NearbyPrice
+from backtester_full.src.core.price_module.strategy_price import StrategyPrice
+from backtester_full.src.core.cost_module.tc import TC
+from backtester_full.src.core.utils.utils import get_unique_dicts
+from backtester_full.src.core.utils.global_params_helper import GLOBALPARAMS
 from commodity.commodity import commodity_helper
 
 

@@ -1,8 +1,8 @@
 import pandas as pd
-from my_holidays.holiday_utils import *
+from my_holiday.holiday_utils import *
 from commodity.commodconfig import COMMODINFO
-from backtester.src.core.portfolio import Trade
-from backtester.src.core.units_module.base_module import BaseUnitModule
+from backtester_full.src.core.portfolio import Trade
+from backtester_full.src.core.units_module.base_module import BaseUnitModule
 import re
 
 

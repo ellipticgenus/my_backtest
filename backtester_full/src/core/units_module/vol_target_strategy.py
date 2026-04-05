@@ -1,10 +1,10 @@
 from .base_module import BaseUnitModule
 import pandas as pd
 import numpy as np
-from my_holidays.holiday_utils import *
+from my_holiday.holiday_utils import *
 from collections import defaultdict
-from backtester.src.core.portfolio import Trade
-from backtester.src.core.utils.utils import partition_ticker
+from backtester_full.src.core.portfolio import Trade
+from backtester_full.src.core.utils.utils import partition_ticker
 from commodity.commodity import commodity_helper
 from ..utils.global_params_helper import GLOBALPARAMS
 
