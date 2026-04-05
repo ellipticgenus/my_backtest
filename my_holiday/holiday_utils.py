@@ -3,9 +3,10 @@ import pandas as pd
 import re
 from dateutil.relativedelta import relativedelta
 from pandas.tseries.offsets import BQuarterEnd, DateOffset
-from my_holiday.cbt import CBT
-from my_holiday.dce import DCE,CZCE
-from my_holiday.ice import ICE
+
+# Lazy imports to avoid circular dependency
+# CBT, DCE, CZCE, ICE are imported inside functions that need them
+
 MONTH_TO_NUM  = {  'F':1,'G':2,'H':3,'J':4,'K':5,'M':6,'N':7,'Q':8,'U':9,'V':10,'X':11,'Z':12 }
 NUM_TO_MONTH = {
         1: 'F',  # January
@@ -58,6 +59,11 @@ def is_holiday(_date, country='US',exchange = None):
 
 def my_holiday_list(country):
     if country in ['CBT', 'DCE','ICE','NYB','CZCE']:
+        # Lazy imports to avoid circular dependency
+        from my_holiday.cbt import CBT
+        from my_holiday.dce import DCE, CZCE
+        from my_holiday.ice import ICE
+        
         if country == 'CBT':
             return CBT()
         elif country == 'CZCE':

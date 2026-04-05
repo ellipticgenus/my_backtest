@@ -14,7 +14,9 @@ from my_holiday.cbt import CBT
 from my_holiday.dce import DCE
 
 from backtest.utils.constants import MONTH_TO_NUM, NUM_TO_MONTH, CONTRACT_FACTOR, CONTRACT_TYPE
-
+PREROLL = {
+    'Q': [0, 1],
+}
 
 def load_business_days(exchange: str = 'CBT') -> List[pd.Timestamp]:
     """
