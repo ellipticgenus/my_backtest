@@ -7,6 +7,7 @@ Contains the TS_Trend class for trend-following strategies.
 import pandas as pd
 import numpy as np
 from backtester_full.src.core.units_module.signals.base import TS_Signal
+from backtester_full.src.core.units_module.utils.kalman import KalmanTrendEstimator
 
 
 class TS_Trend(TS_Signal):
@@ -14,7 +15,7 @@ class TS_Trend(TS_Signal):
     Trend-following signal module.
     
     Generates trading signals based on trend analysis using decay-weighted
-    cumulative returns.
+    cumulative returns or Kalman filter.
     """
     
     def __init__(self, params):
@@ -25,8 +26,12 @@ class TS_Trend(TS_Signal):
             params: Dictionary containing base params plus:
                 - decay_factor: Decay factor for trend calculation (default: 1.0)
                 - returns: Return period for trend calculation (default: 1)
+                - use_kalman: Whether to use Kalman filter for trend (default: False)
+                - kalman_process_noise: Kalman process noise scale (default: 0.05)
         """
         super().__init__(params)
+        self.use_kalman = params.get('use_kalman', False)
+        self.kalman_process_noise = params.get('kalman_process_noise', 0.05)
     
     def trades_on_date(self, date, portfolio, risks_on_dates):
         """
@@ -58,7 +63,7 @@ class TS_Trend(TS_Signal):
         """
         Calculate trend signals for a specific date.
         
-        Uses decay-weighted cumulative returns to determine trend direction.
+        Uses decay-weighted cumulative returns or Kalman filter to determine trend.
         
         Args:
             date: Date to calculate signals for
@@ -79,7 +84,14 @@ class TS_Trend(TS_Signal):
         portfolio_return = total_return.dot(weights)
         portfolio_return = pd.DataFrame(portfolio_return, columns=['return'])
         portfolio_return['cumreturn'] = (1 + portfolio_return['return']).cumprod()
-
+        
+        if self.use_kalman:
+            return self._kalman_trend_signal(portfolio_return, total_value)
+        else:
+            return self._decay_trend_signal(portfolio_return, total_value)
+    
+    def _decay_trend_signal(self, portfolio_return, total_value):
+        """Calculate trend signal using decay-weighted returns."""
         trend_signal = 0
         for lookback in self.lookbacks:
             decay_factor = self.decay_factor
@@ -96,3 +108,18 @@ class TS_Trend(TS_Signal):
             )
         
         return trend_signal / len(self.lookbacks) - 1, total_value
+    
+    def _kalman_trend_signal(self, portfolio_return, total_value):
+        """Calculate trend signal using Kalman filter."""
+        cumreturns = portfolio_return['cumreturn'].values.tolist()
+        noise = portfolio_return['return'].std() * np.sqrt(252)
+        
+        trend_signal = 0
+        for lookback in self.lookbacks:
+            if len(cumreturns) > lookback:
+                signal, _ = KalmanTrendEstimator.calculate_trend_signal(
+                    cumreturns, lookback, noise, self.kalman_process_noise
+                )
+                trend_signal += signal
+        
+        return trend_signal / len(self.lookbacks), total_value
