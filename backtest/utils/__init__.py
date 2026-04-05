@@ -1,13 +1,14 @@
 """
-Backward compatibility module for utils.
+Utils package for the backtest module.
 
-This module re-exports all functions from the new utils package structure.
-For new code, import directly from backtest.utils instead.
+This package contains utility functions and constants for:
+- Constants and mappings (constants.py)
+- Calendar and date utilities (calendar.py)
+- Analysis and plotting functions (analysis.py)
 """
 
-# Re-export everything from the new utils package
-from backtest.utils import (
-    # Constants
+# Import from constants
+from backtest.utils.constants import (
     MONTH_CODES,
     MONTH_TO_CODE,
     MONTH_TO_NUM,
@@ -15,7 +16,10 @@ from backtest.utils import (
     CONTRACT_TYPE,
     CONTRACT_FACTOR,
     PREROLL,
-    # Calendar functions
+)
+
+# Import from calendar
+from backtest.utils.calendar import (
     load_business_days,
     load_business_days_cmd,
     contract_to_nearby,
@@ -23,7 +27,10 @@ from backtest.utils import (
     get_last_trading_day,
     get_last_trading_days,
     load_nearby_series,
-    # Analysis functions
+)
+
+# Import from analysis
+from backtest.utils.analysis import (
     load_future_data,
     load_and_process,
     load_and_run_bt,
