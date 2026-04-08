@@ -40,6 +40,7 @@ class Commodity:
     
     def generate_wind_ticker(self, contract):
         """
+        Generate the Wind API symbol for a given contract.
         contract should always be in the format:
         'MYY' where M is the month code and YY is the year code
         """
@@ -58,6 +59,14 @@ class Commodity:
             return f"{self.wind_ticker}{contract}E.NYB"
         else:
             raise ValueError(f"Unsupported holiday/exchange: {self.holiday}")
+
+    def generate_storage_symbol(self, contract):
+        """
+        Generate the internal storage symbol for a given contract.
+        Format: {ticker}MYY where M is month code and YY is year code.
+        E.g., AK + N26 -> AKN26, S + N26 -> SN26
+        """
+        return f"{self.ticker}{contract}"
 
 
     def _expiration_day_rule(self):

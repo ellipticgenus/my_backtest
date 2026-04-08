@@ -72,18 +72,23 @@ class WindPipeline(BaseDataPipeline):
         fields: Optional[List[str]] = None,
         save_to_disk: bool = True,
         file_format: str = 'csv',
+        storage_symbols: Optional[Dict[str, str]] = None,
         **kwargs
     ) -> Dict[str, Any]:
         """
         Run the complete pipeline for multiple symbols.
         
         Args:
-            symbols: Symbol or list of symbols to download
+            symbols: Symbol or list of symbols to download (Wind API symbols)
             start_date: Start date for data
             end_date: End date for data
             fields: Fields to fetch
             save_to_disk: Whether to save data to disk
             file_format: File format ('csv' or 'parquet')
+            storage_symbols: Optional mapping of Wind symbol -> internal storage symbol.
+                When provided, the storage symbol is used for file naming, DataFrame
+                symbol column, and results keys, while the Wind symbol is used only
+                for the API call.
             **kwargs: Additional parameters
             
         Returns:
@@ -114,39 +119,43 @@ class WindPipeline(BaseDataPipeline):
         # Download data for each symbol
         for i, symbol in enumerate(symbols):
             try:
-                logger.info(f"Processing {symbol} ({i+1}/{len(symbols)})")
+                # Determine storage symbol (used for file naming, results keys, DataFrame column)
+                store_sym = storage_symbols.get(symbol, symbol) if storage_symbols else symbol
                 
-                # Fetch data
+                logger.info(f"Processing {symbol} -> {store_sym} ({i+1}/{len(symbols)})")
+                
+                # Fetch data using Wind API symbol
                 df = self.downloader.fetch_data(
                     symbol, start_date, end_date, fields, **kwargs
                 )
                 
                 if df.empty:
                     logger.warning(f"No data returned for {symbol}")
-                    results['failed'].append(symbol)
+                    results['failed'].append(store_sym)
                     continue
                 
                 # Validate
                 if not self.validate_data(df):
                     logger.warning(f"Validation failed for {symbol}")
-                    results['failed'].append(symbol)
+                    results['failed'].append(store_sym)
                     continue
                 
-                # Process
-                df = self.process_data(df, symbol=symbol)
+                # Process — use storage symbol for the DataFrame's symbol column
+                df = self.process_data(df, symbol=store_sym)
                 
-                # Save to disk
+                # Save to disk — use storage symbol for file naming
                 if save_to_disk:
-                    self._save_data(df, symbol, file_format)
+                    self._save_data(df, store_sym, file_format)
                 
-                results['success'].append(symbol)
-                results['data'][symbol] = df
-                self._downloaded_data[symbol] = df
+                results['success'].append(store_sym)
+                results['data'][store_sym] = df
+                self._downloaded_data[store_sym] = df
                 
             except Exception as e:
                 logger.error(f"Error processing {symbol}: {e}")
-                results['failed'].append(symbol)
-                results['errors'][symbol] = str(e)
+                store_sym = storage_symbols.get(symbol, symbol) if storage_symbols else symbol
+                results['failed'].append(store_sym)
+                results['errors'][store_sym] = str(e)
         
         self._update_status('status', 'completed')
         self._update_status('end_time', datetime.now().isoformat())
@@ -163,23 +172,30 @@ class WindPipeline(BaseDataPipeline):
         fields: Optional[List[str]] = None,
         save_to_disk: bool = True,
         file_format: str = 'csv',
+        storage_symbol: Optional[str] = None,
         **kwargs
     ) -> Dict[str, Any]:
         """
         Run pipeline for a single symbol.
         
         Args:
-            symbol: Symbol to download
+            symbol: Wind API symbol to download
             start_date: Start date
             end_date: End date
             fields: Fields to fetch
             save_to_disk: Whether to save to disk
             file_format: File format ('csv' or 'parquet')
+            storage_symbol: Optional internal storage symbol (e.g., 'AKN26').
+                When provided, this is used for file naming, the DataFrame symbol
+                column, and results keys, while ``symbol`` is used only for the
+                Wind API call.
             **kwargs: Additional parameters
             
         Returns:
             Dictionary with result data
         """
+        storage_map = {symbol: storage_symbol} if storage_symbol else None
+        
         results = self.run(
             symbols=[symbol],
             start_date=start_date,
@@ -187,13 +203,15 @@ class WindPipeline(BaseDataPipeline):
             fields=fields,
             save_to_disk=save_to_disk,
             file_format=file_format,
+            storage_symbols=storage_map,
             **kwargs
         )
         
+        effective = storage_symbol or symbol
         return {
-            'success': symbol in results['success'],
-            'data': results['data'].get(symbol),
-            'error': results['errors'].get(symbol)
+            'success': effective in results['success'],
+            'data': results['data'].get(effective),
+            'error': results['errors'].get(effective)
         }
     
     def run_batch(
@@ -204,11 +222,22 @@ class WindPipeline(BaseDataPipeline):
         fields: Optional[List[str]] = None,
         save_to_disk: bool = True,
         file_format: str = 'csv',
+        storage_symbols: Optional[Dict[str, str]] = None,
         **kwargs
     ) -> Dict[str, Any]:
         """
         Run pipeline for a batch of symbols.
         
+        Args:
+            symbols: List of Wind API symbols to download
+            start_date: Start date
+            end_date: End date
+            fields: Fields to fetch
+            save_to_disk: Whether to save to disk
+            file_format: File format ('csv' or 'parquet')
+            storage_symbols: Optional mapping of Wind symbol -> internal storage symbol.
+            **kwargs: Additional parameters
+            
         Same as run() method, provided for clarity.
         """
         return self.run(
@@ -218,6 +247,7 @@ class WindPipeline(BaseDataPipeline):
             fields=fields,
             save_to_disk=save_to_disk,
             file_format=file_format,
+            storage_symbols=storage_symbols,
             **kwargs
         )
     

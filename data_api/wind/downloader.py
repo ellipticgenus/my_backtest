@@ -17,7 +17,7 @@ from WindPy import w
 from data_api.base import DataDownloader
 from data_api.wind.config import (
     WindConfig, get_symbol_type,
-    DEFAULT_FIELDS, FUTURE_FIELDS, INDEX_FIELDS, FUND_FIELDS
+    DEFAULT_FIELDS, FUTURE_FIELDS, INDEX_FIELDS
 )
 
 # Configure logging
@@ -241,3 +241,26 @@ class WindDownloader(DataDownloader):
         
         return results
     
+    def _build_options(self, options: Optional[Dict[str, Any]] = None) -> str:
+        """
+        Build Wind API options string.
+        
+        Args:
+            options: Dictionary of option key-value pairs
+            
+        Returns:
+            Options string for Wind API
+        """
+        if options is None:
+            return ""
+        
+        opt_parts = []
+        for key, value in options.items():
+            if isinstance(value, str):
+                opt_parts.append(f"{key}={value}")
+            elif isinstance(value, bool):
+                opt_parts.append(f"{key}={'Yes' if value else 'No'}")
+            else:
+                opt_parts.append(f"{key}={value}")
+        
+        return ";".join(opt_parts)

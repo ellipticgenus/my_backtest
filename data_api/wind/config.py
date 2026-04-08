@@ -39,7 +39,7 @@ class WindConfig:
     
     # Future contract specific fields
     future_fields: List[str] = field(default_factory=lambda: [
-        'open', 'high', 'low', 'close', 'volume', 'amt', 'oi', 'settle'
+        'open', 'high', 'low', 'close', 'volume',  'oi', 'settle'
     ])
     
     # Index specific fields
@@ -67,8 +67,6 @@ class WindConfig:
         }
 
 
-
-
 def get_symbol_type(symbol: str) -> str:
     """
     Determine the type of symbol.
@@ -81,6 +79,6 @@ def get_symbol_type(symbol: str) -> str:
     """
     
     exchange = symbol.split('.')[1]
-    if exchange in [ 'DCE', 'ZCE', 'CBT','ICE']:
+    if exchange in [ 'DCE', 'CZC', 'CBT','ICE']:
         return 'commodity_future'
     return 'unknown'
