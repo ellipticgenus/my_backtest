@@ -62,6 +62,9 @@ class Commodity:
 
     def _expiration_day_rule(self):
         return self.commod_info['expiration_rule']
+
+    def _first_trade_date_rule(self):
+        return self.commod_info.get('first_trade_date', DEFAULT_FIRST_TRADE_DATE_RULE)
         
     def get_commodity_series(self, start_date, end_date, cache_codes = False):
         _date = pd.to_datetime(apply_date_rule(start_date, '-1m', self.holiday) )
@@ -109,6 +112,41 @@ class Commodity:
         end_date = date.today().strftime('%Y-%m-%d')
         self.expiration_days(start_date, end_date, True)
         return {k:v for k,v in self.data['ed_mapping'].items()} 
+
+
+    def first_trade_day(self, contract):
+        if self._first_trade_date_rule() is not None:
+            first_trade_date_rules = self._first_trade_date_rule()
+            if contract[0] in self.valid_expiration:
+                rdate = first_trade_date_rules[contract[:-2]]
+                if int(contract[-2:]) == 99: # if it is the last contract, we use the last day of the year
+                    return apply_date_rules(f'{1900+ int(contract[-2:])}-{MONTH_TO_NUM[contract[-3]]}-01', rdate, self.holiday)
+                else:
+                    return apply_date_rules(f'{2000+ int(contract[-2:])}-{MONTH_TO_NUM[contract[-3]]}-01', rdate, self.holiday)
+        else:
+            return self.last_trading_day(contract)
+    
+    def first_trade_days(self, start_date, end_date, cache_dates = False):
+        if 'first_trade_days' in self.data:
+            return self.data['first_trade_days']
+        if cache_dates:
+            start_date ='2000-01-01'
+        futures_codes = self.get_commodity_series( start_date, end_date, cache_dates)
+        first_trade_days = [self.first_trade_day( code) for code in futures_codes]
+        if cache_dates:
+            self.data['first_trade_days'] = first_trade_days
+            self.data['ftd_mapping'] =  self.data.get('ftd_mapping',{})|dict(zip(futures_codes, first_trade_days))
+        return first_trade_days
+    
+    def get_first_trade_days(self):
+        if 'ftd_mapping' in self.data:
+            mapping = {k:v for k,v in self.data['ftd_mapping'].items()}
+            if mapping:
+                return mapping
+        start_date ='2000-01-01'
+        end_date = date.today().strftime('%Y-%m-%d')
+        self.first_trade_days(start_date, end_date, True)
+        return {k:v for k,v in self.data['ftd_mapping'].items()} 
 
     def last_trading_day(self, contract):
         expiration_rules = self.first_notice_rule # we default use first notice day

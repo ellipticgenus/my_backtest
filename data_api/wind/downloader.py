@@ -12,12 +12,24 @@ from pathlib import Path
 
 import pandas as pd
 import numpy as np
+from WindPy import w
 
 from data_api.base import DataDownloader
-from data_api.wind.config import WindConfig, get_symbol_type
+from data_api.wind.config import (
+    WindConfig, get_symbol_type,
+    DEFAULT_FIELDS, FUTURE_FIELDS, INDEX_FIELDS, FUND_FIELDS
+)
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+def data_to_df(return_query):
+    data = {}
+    data['date'] = return_query.Times
+    for col in range(len(return_query.Fields)): #df.Fields:
+        data[return_query.Fields[col]] = return_query.Data[col]
+    final_df = pd.DataFrame(data)
+    return final_df
 
 
 class WindDownloader(DataDownloader):
@@ -42,7 +54,6 @@ class WindDownloader(DataDownloader):
             config: Configuration dictionary (can be from WindConfig.to_dict())
         """
         super().__init__(config)
-        self._wind = None
         self._connected = False
         
     def connect(self) -> bool:
@@ -53,28 +64,23 @@ class WindDownloader(DataDownloader):
             True if connection successful, False otherwise
         """
         try:
-            # Try to import WindPy
-            import WindPy
-            self._wind = WindPy
+            # Check if already connected
+            if w.isconnected():
+                self._connected = True
+                logger.info("Already connected to Wind Terminal")
+                return True
             
-            # Initialize Wind API
-            result = WindPy.w.isconnected()
+            # Try to start connection
+            w.start()
+            time.sleep(2)  # Wait for connection
             
-            if result or WindPy.w.isconnected():
+            if w.isconnected():
                 self._connected = True
                 logger.info("Successfully connected to Wind Terminal")
                 return True
             else:
-                # Try to start connection
-                WindPy.w.start()
-                time.sleep(2)  # Wait for connection
-                if WindPy.w.isconnected():
-                    self._connected = True
-                    logger.info("Successfully connected to Wind Terminal")
-                    return True
-                else:
-                    logger.error("Failed to connect to Wind Terminal")
-                    return False
+                logger.error("Failed to connect to Wind Terminal")
+                return False
                     
         except ImportError:
             logger.error(
@@ -94,8 +100,8 @@ class WindDownloader(DataDownloader):
             True if disconnection successful, False otherwise
         """
         try:
-            if self._wind is not None:
-                self._wind.w.stop()
+            if self._connected:
+                w.stop()
                 self._connected = False
                 logger.info("Disconnected from Wind Terminal")
             return True
@@ -110,11 +116,11 @@ class WindDownloader(DataDownloader):
         Returns:
             True if connected, False otherwise
         """
-        if not self._connected or self._wind is None:
+        if not self._connected:
             return False
         
         try:
-            return self._wind.w.isconnected()
+            return w.isconnected()
         except:
             return False
     
@@ -151,30 +157,34 @@ class WindDownloader(DataDownloader):
         if fields is None:
             symbol_type = get_symbol_type(symbol)
             if symbol_type in ['commodity_future', 'index_future', 'bond_future']:
-                fields = self.config.get('future_fields', WindConfig.future_fields)
+                fields = self.config.get('future_fields', FUTURE_FIELDS)
             elif symbol_type == 'index':
-                fields = self.config.get('index_fields', WindConfig.index_fields)
+                fields = self.config.get('index_fields', INDEX_FIELDS)
             elif symbol_type == 'fund':
-                fields = self.config.get('fund_fields', WindConfig.fund_fields)
+                fields = self.config.get('fund_fields', FUND_FIELDS)
             else:
-                fields = self.config.get('default_fields', WindConfig.default_fields)
+                fields = self.config.get('default_fields', DEFAULT_FIELDS)
         
         # Build options string
         opt_str = self._build_options(options)
+        
+        # Convert fields list to comma-separated string for Wind API
+        fields_str = ",".join(fields) if isinstance(fields, list) else fields
         
         # Fetch data with retry logic
         for attempt in range(self.retry_count):
             try:
                 logger.info(f"Fetching {symbol} from {start_str} to {end_str} (attempt {attempt + 1})")
-                
-                result = self._wind.w.wsd(
+                print(symbol, fields_str, start_str, end_str, opt_str)
+
+                result = w.wsd(
                     symbol,
-                    fields,
+                    fields_str,
                     start_str,
                     end_str,
                     opt_str
                 )
-                
+                # print(result)
                 if result.ErrorCode != 0:
                     logger.warning(f"Wind API error: {result.ErrorCode}")
                     if attempt < self.retry_count - 1:
@@ -183,7 +193,7 @@ class WindDownloader(DataDownloader):
                     raise Exception(f"Wind API error code: {result.ErrorCode}")
                 
                 # Convert to DataFrame
-                df = self._convert_to_dataframe(result, fields)
+                df = data_to_df(result)
                 
                 logger.info(f"Fetched {len(df)} records for {symbol}")
                 return df
@@ -276,13 +286,16 @@ class WindDownloader(DataDownloader):
         # Build options
         options = f"BarSize={bar_size}"
         
+        # Convert fields list to comma-separated string for Wind API
+        fields_str = ",".join(fields) if isinstance(fields, list) else fields
+        
         for attempt in range(self.retry_count):
             try:
                 logger.info(f"Fetching intraday {symbol} from {start_str} to {end_str}")
                 
-                result = self._wind.w.wsi(
+                result = w.wsi(
                     symbol,
-                    fields,
+                    fields_str,
                     start_str,
                     end_str,
                     options
@@ -294,7 +307,7 @@ class WindDownloader(DataDownloader):
                         continue
                     raise Exception(f"Wind API error code: {result.ErrorCode}")
                 
-                df = self._convert_to_dataframe(result, fields)
+                df = data_to_df(result)
                 return df
                 
             except Exception as e:
@@ -329,9 +342,12 @@ class WindDownloader(DataDownloader):
         if fields is None:
             fields = ['rt_last', 'rt_bid1', 'rt_ask1', 'rt_vol', 'rt_amt']
         
+        # Convert fields list to comma-separated string for Wind API
+        fields_str = ",".join(fields) if isinstance(fields, list) else fields
+        
         for attempt in range(self.retry_count):
             try:
-                result = self._wind.w.wsq(symbols, fields)
+                result = w.wsq(symbols, fields_str)
                 
                 if result.ErrorCode != 0:
                     if attempt < self.retry_count - 1:
@@ -493,14 +509,14 @@ class WindDownloader(DataDownloader):
     def _convert_to_dataframe(
         self,
         result,
-        fields: List[str]
+        fields: List[str] = None
     ) -> pd.DataFrame:
         """
         Convert Wind API result to DataFrame.
         
         Args:
             result: Wind API result object
-            fields: List of field names
+            fields: List of field names (optional, uses result.Fields if not provided)
             
         Returns:
             pandas DataFrame
@@ -511,13 +527,15 @@ class WindDownloader(DataDownloader):
         # Times/Dates are in result.Times
         if hasattr(result, 'Times') and result.Times:
             data['date'] = result.Times
-        elif hasattr(result, 'Data') and result.Data:
-            # For timeseries, first column might be dates
-            pass
+        
+        # Use actual field names from API response if available
+        actual_fields = fields
+        if hasattr(result, 'Fields') and result.Fields:
+            actual_fields = result.Fields
         
         # Data values are in result.Data (list of lists, one per field)
-        if hasattr(result, 'Data') and result.Data:
-            for i, field in enumerate(fields):
+        if hasattr(result, 'Data') and result.Data and actual_fields:
+            for i, field in enumerate(actual_fields):
                 if i < len(result.Data):
                     data[field] = result.Data[i]
         
@@ -561,7 +579,7 @@ class WindDownloader(DataDownloader):
         
         # Use trading calendar function
         try:
-            result = self._wind.w.tdays(start_str, end_str, f"Exchange={exchange}")
+            result = w.tdays(start_str, end_str, f"Exchange={exchange}")
             
             if result.ErrorCode == 0 and hasattr(result, 'Times'):
                 return [t.date() for t in result.Times]
