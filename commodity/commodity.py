@@ -30,9 +30,35 @@ class Commodity:
     def liquid_contracts(self):
         return self.commod_info['liquid_expiration']
  
-    def _first_notice_rule(self):
+    @property
+    def wind_ticker(self):
+        return self.commod_info.get('wind_ticker', self.ticker)
+
+    @property
+    def first_notice_rule(self):
         return self.commod_info['first_notice_rule']
     
+    def generate_wind_ticker(self, contract):
+        """
+        contract should always be in the format:
+        'MYY' where M is the month code and YY is the year code
+        """
+        month = contract[0]
+        if self.holiday == 'DCE':
+            year = contract[1:]
+            month_num = MONTH_TO_NUM[month]
+            return f"{self.wind_ticker}{year}{month_num:02d}.DCE"
+        elif self.holiday == 'CZCE':
+            year = contract[2:]
+            month_num = MONTH_TO_NUM[month]
+            return f"{self.wind_ticker}{year}{month_num:02d}.CZC"
+        elif self.holiday == 'CBT':
+            return f"{self.wind_ticker}{contract}E.CBT"
+        elif self.holiday == 'ICE':
+            return f"{self.wind_ticker}{contract}E.NYB"
+        else:
+            raise ValueError(f"Unsupported holiday/exchange: {self.holiday}")
+
 
     def _expiration_day_rule(self):
         return self.commod_info['expiration_rule']
@@ -85,7 +111,7 @@ class Commodity:
         return {k:v for k,v in self.data['ed_mapping'].items()} 
 
     def last_trading_day(self, contract):
-        expiration_rules = self._first_notice_rule() # we default use first notice day
+        expiration_rules = self.first_notice_rule # we default use first notice day
         if contract[0] in self.valid_expiration:
             rdate = expiration_rules[contract[:-2]]
             if int(contract[-2:]) == 99: # if it is the last contract, we use the last day of the year
