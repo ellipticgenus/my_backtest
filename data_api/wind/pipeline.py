@@ -459,12 +459,6 @@ class WindPipeline(BaseDataPipeline):
         
         # Standardize column names
         df.columns = df.columns.str.lower()
-        
-        # Calculate returns if close price exists
-        if calculate_returns and 'close' in df.columns:
-            df['return'] = df['close'].pct_change()
-            df['log_return'] = np.log(df['close'] / df['close'].shift(1))
-        
         # Add symbol column if provided
         if symbol:
             df['symbol'] = symbol
