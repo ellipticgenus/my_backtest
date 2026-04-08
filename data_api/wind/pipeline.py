@@ -14,7 +14,7 @@ import numpy as np
 
 from data_api.base import BaseDataPipeline
 from data_api.wind.downloader import WindDownloader
-from data_api.wind.config import WindConfig, WIND_SYMBOLS, get_symbol_type
+from data_api.wind.config import WindConfig,  get_symbol_type
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -41,9 +41,9 @@ class WindPipeline(BaseDataPipeline):
         >>> 
         >>> # Download all commodity futures
         >>> result = pipeline.run_batch(
-        ...     list(WIND_SYMBOLS['commodity_futures'].keys()),
-        ...     '2024-01-01',
-        ...     '2024-12-31'
+        ...     symbols=['A2601.DCE', 'A2603.DCE', 'A2601.DCE', 'A2605.DCE'],
+        ...     start_date='2025-01-01',
+        ...     end_date='2025-12-31'
         ... )
     """
     

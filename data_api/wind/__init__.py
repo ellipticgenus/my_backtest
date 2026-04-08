@@ -11,11 +11,10 @@ Requirements:
 
 from data_api.wind.downloader import WindDownloader
 from data_api.wind.pipeline import WindPipeline
-from data_api.wind.config import WindConfig, WIND_SYMBOLS
+from data_api.wind.config import WindConfig
 
 __all__ = [
     'WindDownloader',
     'WindPipeline',
-    'WindConfig',
-    'WIND_SYMBOLS',
+    'WindConfig'
 ]

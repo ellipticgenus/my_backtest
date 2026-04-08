@@ -160,8 +160,6 @@ class WindDownloader(DataDownloader):
                 fields = self.config.get('future_fields', FUTURE_FIELDS)
             elif symbol_type == 'index':
                 fields = self.config.get('index_fields', INDEX_FIELDS)
-            elif symbol_type == 'fund':
-                fields = self.config.get('fund_fields', FUND_FIELDS)
             else:
                 fields = self.config.get('default_fields', DEFAULT_FIELDS)
         
