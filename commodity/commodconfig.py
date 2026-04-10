@@ -130,6 +130,7 @@ COMMODINFO = {
         'currency': 'CNY',
         'expiration_rule': RULES_3,
         'first_trade_date': RULES_9,
+        'commodity_start_date':'2006-01-04', # earliest date in dce website #'2002-03-15',
         'valid_expiration': 'FHKNUX',
         'wind_ticker': 'A',
         'liquid_expiration': 'FHKNUX', # from function
@@ -140,6 +141,7 @@ COMMODINFO = {
         'currency': 'CNY',
         'expiration_rule': RULES_3,
         'first_trade_date': RULES_9,
+        'commodity_start_date':'2017-05-31', # date revised
         'wind_ticker': 'B',
         'valid_expiration': 'FGHJKMNQUVXZ',
         'liquid_expiration': 'FGHJKMNQUVXZ', #   from function
@@ -151,6 +153,7 @@ COMMODINFO = {
         'expiration_rule': RULES_3,
         'wind_ticker': 'M',
         'first_trade_date': RULES_9,
+        'commodity_start_date':'2006-01-04', # earliest date in dce website #'2000-07-17',
         'valid_expiration': 'FHKMNUXZ',
         'liquid_expiration': 'FKUX', #   from function
         'first_notice_rule': RULES_3,
@@ -161,6 +164,7 @@ COMMODINFO = {
         'expiration_rule': RULES_3,
         'wind_ticker': 'Y',
         'first_trade_date': RULES_9,
+        'commodity_start_date':'2006-01-09',
         'valid_expiration': 'FHKMNUXZ',
         'liquid_expiration': 'FKU', #  from function
         'first_notice_rule': RULES_3,
@@ -169,6 +173,7 @@ COMMODINFO = {
         'holiday': 'DCE',
         'currency': 'CNY',
         'expiration_rule': RULES_3,
+        'commodity_start_date':'2006-01-04', # earliest date in dce website #  '2004-09-22',
         'wind_ticker': 'C',
         'first_trade_date': RULES_9,
         'valid_expiration': 'FHKNUX',
@@ -179,6 +184,7 @@ COMMODINFO = {
         'holiday': 'DCE',
         'currency': 'CNY',
         'expiration_rule': RULES_3,
+        'commodity_start_date':'2007-10-29',
         'wind_ticker': 'P',
         'first_trade_date': RULES_9,
         'valid_expiration': 'FGHJKMNQUVXZ',
@@ -191,6 +197,7 @@ COMMODINFO = {
         'expiration_rule': RULES_8,
         'wind_ticker': 'LH',
         'first_trade_date': RULES_10,
+        'commodity_start_date':'2021-01-08',
         'valid_expiration': 'FHKNUX',
         'liquid_expiration': 'FHKNUX', # from function
         'first_notice_rule': RULES_4,
@@ -202,6 +209,7 @@ COMMODINFO = {
         'expiration_rule': RULES_3,
         'wind_ticker': 'OI',
         'first_trade_date': RULES_9,
+        'commodity_start_date':'2010-01-04',#June 8, 2007
         'valid_expiration': 'FHKNUX',
         'liquid_expiration': 'FHKNUX', # from function
         'first_notice_rule': RULES_3,
@@ -213,6 +221,7 @@ COMMODINFO = {
         'expiration_rule': RULES_3,
         'wind_ticker': 'RM',
         'first_trade_date': RULES_9,
+        'commodity_start_date':'2012-12-28',#December 28, 2012
         'valid_expiration': 'FHKNQUX',   
         'liquid_expiration': 'FHKNQUX', # from function
         'first_notice_rule': RULES_3,
@@ -223,6 +232,7 @@ COMMODINFO = {
         'currency': 'CNY',
         'expiration_rule': RULES_3,
         'first_trade_date': RULES_9,
+        'commodity_start_date':'2013-07-08',
         'wind_ticker': 'RS',
         'valid_expiration': 'NQUX',   
         'liquid_expiration': 'NQUX', # from function
@@ -235,6 +245,7 @@ COMMODINFO = {
         'expiration_rule': RULES_3,
         'wind_ticker': 'MA',
         'first_trade_date': RULES_9,
+        'commodity_start_date':'2011-10-28',
         'valid_expiration': 'FGHJKMNQUVXZ',   
         'liquid_expiration': 'FGHJKMNQUVXZ', # from function
         'first_notice_rule': RULES_3,
@@ -245,6 +256,7 @@ COMMODINFO = {
         'expiration_rule': RULES_3,
         'wind_ticker': 'PM',
         'first_trade_date': RULES_9,
+        'commodity_start_date':'2010-01-04',#May 28, 1993
         'valid_expiration': 'FHKNUX',   
         'liquid_expiration': 'FHKNUX', # from function
         'first_notice_rule': RULES_3,
@@ -255,6 +267,7 @@ COMMODINFO = {
         'expiration_rule': RULES_3,
         'wind_ticker': 'CF',
         'first_trade_date': RULES_9,
+        'commodity_start_date':'2010-01-04',#June 1, 2004
         'valid_expiration': 'FHKNUX',   
         'liquid_expiration': 'FHKNUX', # from function
         'first_notice_rule': RULES_3,
@@ -266,6 +279,7 @@ COMMODINFO = {
         'expiration_rule': RULES_3,
         'first_trade_date': RULES_9,
         'wind_ticker': 'WH',
+        'commodity_start_date':'2010-01-04',#	March 28, 2003
         'valid_expiration': 'FHKNUX',   
         'liquid_expiration': 'FHKNUX', # from function
         'first_notice_rule': RULES_3,
@@ -276,6 +290,7 @@ COMMODINFO = {
         'expiration_rule': RULES_3,
         'first_trade_date': RULES_9,
         'wind_ticker': 'SR',
+        'commodity_start_date':'2010-01-04',#	January 6, 2006
         'valid_expiration': 'FHKNUX',   
         'liquid_expiration': 'FHKNUX', # from function
         'first_notice_rule': RULES_3,
@@ -284,6 +299,7 @@ COMMODINFO = {
         'holiday': 'CBT',
         'currency': 'USD',
         'expiration_rule': RULES_6,
+        'commodity_start_date': '2000-01-01',
         'wind_ticker': 'S',
         'valid_expiration': 'FHKNQUX',
         'liquid_expiration': 'FHKNX', # follow bcom
@@ -293,6 +309,7 @@ COMMODINFO = {
         'holiday': 'CBT',
         'currency': 'USD',
         'expiration_rule': RULES_6,
+        'commodity_start_date': '2000-01-01',
         'valid_expiration': 'JHKNQUVZ',
         'liquid_expiration': 'JHKNQUVZ', 
         'crush_decomposition': CRUSH_DECOMPOSITION,
@@ -303,6 +320,7 @@ COMMODINFO = {
         'currency': 'USD',
         'expiration_rule': RULES_6,
         'wind_ticker': 'BO',
+        'commodity_start_date': '2000-01-01',
         'valid_expiration': 'FHKNQUVZ',
         'liquid_expiration': 'FHKNZ',
         'first_notice_rule': RULES_2,
@@ -312,6 +330,7 @@ COMMODINFO = {
         'currency': 'USD',
         'expiration_rule': RULES_6,
         'wind_ticker': 'SM',
+        'commodity_start_date': '2000-01-01',
         'valid_expiration': 'FHKNQUVZ',
         'liquid_expiration': 'FHKNZ',
         'first_notice_rule': RULES_2,
@@ -321,6 +340,7 @@ COMMODINFO = {
         'currency': 'USD',
         'expiration_rule': RULES_6,
         'wind_ticker': 'C',
+        'commodity_start_date': '2000-01-01',
         'valid_expiration': 'HKNUZ',
         'liquid_expiration': 'HKNUZ',
         'first_notice_rule': RULES_2,
@@ -330,6 +350,7 @@ COMMODINFO = {
         'currency': 'USD',
         'expiration_rule': RULES_6,
         'wind_ticker': 'W',
+        'commodity_start_date': '2000-01-01',
         'valid_expiration': 'HKNUZ',
         'liquid_expiration': 'HKNUZ',
         'first_notice_rule': RULES_2,
@@ -339,6 +360,7 @@ COMMODINFO = {
         'currency': 'USD',
         'expiration_rule': RULES_6,
         'wind_ticker': 'KW',
+        'commodity_start_date': '2000-01-01',
         'valid_expiration': 'HKNUZ',
         'liquid_expiration': 'HKNUZ',
         'first_notice_rule': RULES_2,
@@ -349,6 +371,7 @@ COMMODINFO = {
         'currency': 'USD',
         'expiration_rule': RULES_7,
         'wind_ticker': 'CT', # NYB
+        'commodity_start_date': '2004-01-01',
         'valid_expiration': 'HKNUZ',
         'liquid_expiration': 'HKNUZ',
         'first_notice_rule': RULES_5,
